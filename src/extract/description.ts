@@ -1,6 +1,8 @@
+import type { CopyOptions } from "../config/types";
 import { httpGetJson } from "../net/http";
 import {
   htmlToMarkdown,
+  htmlFragmentToMarkdown,
   embedRemoteImagesInMarkdown,
 } from "../utils/html-to-md";
 
@@ -12,6 +14,7 @@ interface TrackerIssueApi {
 export async function extractDescription(
   root: ParentNode,
   issueKey: string,
+  options: CopyOptions,
 ): Promise<string> {
   try {
     const issue = await httpGetJson<TrackerIssueApi>(
@@ -19,10 +22,11 @@ export async function extractDescription(
     );
     if (issue.description?.trim()) {
       if (issue.markupType === "md") {
-        return embedRemoteImagesInMarkdown(issue.description.trim());
+        return embedRemoteImagesInMarkdown(issue.description.trim(), options);
       }
       return embedRemoteImagesInMarkdown(
-        await htmlFragmentToMarkdownSafe(issue.description),
+        await htmlFragmentToMarkdown(issue.description, options),
+        options,
       );
     }
   } catch {
@@ -34,14 +38,7 @@ export async function extractDescription(
   );
   if (!yfm) return "—";
 
-  let md = await htmlToMarkdown(yfm);
-  md = await embedRemoteImagesInMarkdown(md);
+  let md = await htmlToMarkdown(yfm, options);
+  md = await embedRemoteImagesInMarkdown(md, options);
   return md || "—";
-}
-
-async function htmlFragmentToMarkdownSafe(html: string): Promise<string> {
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = html;
-  const yfm = wrapper.querySelector(".yfm") ?? wrapper;
-  return htmlToMarkdown(yfm as HTMLElement);
 }

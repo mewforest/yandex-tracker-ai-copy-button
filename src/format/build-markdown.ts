@@ -5,6 +5,7 @@ import { extractMetadata } from "../extract/metadata";
 import { extractDescription } from "../extract/description";
 import { extractAttachments } from "../extract/attachments";
 import { extractComments } from "../extract/comments";
+import { getCopyOptions } from "../config/settings";
 import { resetImageEmbedBudget } from "../utils/image-embed";
 
 function formatMetadata(meta: IssueMetadata): string {
@@ -29,12 +30,13 @@ function formatComments(comments: CommentBlock[]): string | null {
 
 export async function buildIssueMarkdown(ctx: IssueContext): Promise<string> {
   resetImageEmbedBudget();
+  const options = getCopyOptions();
 
   const [meta, description, attachments, comments] = await Promise.all([
     Promise.resolve(extractMetadata(ctx.root)),
-    extractDescription(ctx.root, ctx.key),
-    extractAttachments(ctx.root),
-    extractComments(ctx.root, ctx.key),
+    extractDescription(ctx.root, ctx.key, options),
+    extractAttachments(ctx.root, options),
+    extractComments(ctx.root, ctx.key, options),
   ]);
 
   const sections = [

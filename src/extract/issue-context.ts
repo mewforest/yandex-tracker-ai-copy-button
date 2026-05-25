@@ -1,5 +1,7 @@
 const ISSUE_KEY_RE = /\b([A-Z][A-Z0-9]+-\d+)\b/;
 
+const ISSUE_WRAPPER_SEL = ".page-issue__wrapper, .page-issue__wrapper_compact";
+
 export interface IssueContext {
   key: string;
   title: string;
@@ -10,7 +12,7 @@ export interface IssueContext {
 function findIssueRoot(anchor?: Element | null): ParentNode {
   if (!anchor) return document;
   return (
-    anchor.closest(".page-issue__wrapper") ??
+    anchor.closest(ISSUE_WRAPPER_SEL) ??
     anchor.closest(".side-card-drawer") ??
     document
   );
@@ -23,6 +25,16 @@ function extractKey(root: ParentNode): string | null {
   const fromDom = link?.textContent?.trim();
   if (fromDom && ISSUE_KEY_RE.test(fromDom)) {
     return fromDom.match(ISSUE_KEY_RE)![1];
+  }
+
+  const breadcrumbTitle = root
+    .querySelector<HTMLElement>(
+      ".page-issue__issue-key [title], .g-breadcrumbs__item_current [title]",
+    )
+    ?.getAttribute("title")
+    ?.trim();
+  if (breadcrumbTitle && ISSUE_KEY_RE.test(breadcrumbTitle)) {
+    return breadcrumbTitle.match(ISSUE_KEY_RE)![1];
   }
 
   const pathMatch = location.pathname.match(/\/([A-Z][A-Z0-9]+-\d+)\/?$/i);

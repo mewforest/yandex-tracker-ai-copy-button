@@ -1,5 +1,11 @@
+import type { CopyOptions } from "../config/types";
 import { httpGetBlob, httpGetText } from "../net/http";
-import { embedImageFromUrl, markdownImage } from "../utils/image-embed";
+import {
+  embedImageFromUrl,
+  markdownImage,
+  markdownImageLink,
+} from "../utils/image-embed";
+import { resolveAbsoluteUrl } from "../utils/resolve-url";
 
 const TEXT_EXTENSIONS = new Set([
   "json",
@@ -64,6 +70,10 @@ function fenceLang(ext: string): string {
   return ext || "";
 }
 
+function formatTextAttachmentLink(name: string, url: string): string {
+  return `### ${name}\n\nURL: ${resolveAbsoluteUrl(url)}`;
+}
+
 async function formatTextAttachment(
   name: string,
   url: string,
@@ -74,20 +84,25 @@ async function formatTextAttachment(
     const lang = fenceLang(ext);
     return `### ${name}\n\n\`\`\`${lang}\n${text.trim()}\n\`\`\``;
   } catch {
-    return `### ${name}\n\n> Failed to load attachment.\n\nURL: ${url}`;
+    return `### ${name}\n\n> Failed to load attachment.\n\nURL: ${resolveAbsoluteUrl(url)}`;
   }
 }
 
 async function formatImageAttachment(
   name: string,
   url: string,
+  options: CopyOptions,
 ): Promise<string> {
+  if (!options.formatted) {
+    return `### ${name}\n\n${markdownImageLink(name, url)}`;
+  }
   const embed = await embedImageFromUrl(url, name);
   return `### ${name}\n\n${markdownImage(name, embed)}`;
 }
 
 export async function extractAttachments(
   root: ParentNode,
+  options: CopyOptions,
 ): Promise<string | null> {
   const items = parseAttachmentLinks(root);
   if (!items.length) return null;
@@ -95,17 +110,25 @@ export async function extractAttachments(
   const sections = await Promise.all(
     items.map(async (item) => {
       const ext = extensionOf(item.name);
+
       if (TEXT_EXTENSIONS.has(ext)) {
-        return formatTextAttachment(item.name, item.url);
+        return options.formatted
+          ? formatTextAttachment(item.name, item.url)
+          : formatTextAttachmentLink(item.name, item.url);
       }
+
       if (IMAGE_EXTENSIONS.has(ext)) {
-        return formatImageAttachment(item.name, item.url);
+        return formatImageAttachment(item.name, item.url, options);
+      }
+
+      if (!options.formatted) {
+        return formatTextAttachmentLink(item.name, item.url);
       }
 
       try {
         const blob = await httpGetBlob(item.url);
         if (blob.type.startsWith("image/")) {
-          return formatImageAttachment(item.name, item.url);
+          return formatImageAttachment(item.name, item.url, options);
         }
         if (
           blob.type.startsWith("text/") ||
@@ -119,7 +142,7 @@ export async function extractAttachments(
         /* fall through */
       }
 
-      return `### ${item.name}\n\nURL: ${item.url}`;
+      return `### ${item.name}\n\nURL: ${resolveAbsoluteUrl(item.url)}`;
     }),
   );
 

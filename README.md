@@ -2,6 +2,15 @@
 
 Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи.
 
+## Доступ к вложениям (XHR)
+
+Скрипт запрашивает файлы через `GM_xmlhttpRequest`. Вложения с Трекера часто редиректят на `storage.mds.yandex.net` — эти домены указаны в `@connect` сборки.
+
+Если в консоли остаётся `Refused to connect` / `not whitelisted URL`:
+
+1. Переустановите скрипт из свежего `dist/spd-tracker-ai-copy.user.js` после `npm run build`.
+2. Tampermonkey → настройки скрипта → **XHR Security** → уберите `storage.mds.yandex.net` из blacklist, если он туда попал после отказа.
+
 ## Установка
 
 1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или Violentmonkey / Greasemonkey).
@@ -20,6 +29,17 @@ Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](http
 - описание (YFM → Markdown, inline-изображения как data URI)
 - вложения: текстовые файлы (json, yaml, md, …) в code blocks; картинки встроены или с URL
 - комментарии (если есть)
+
+## Настройка `SPD_COPY_FORMATTED`
+
+По умолчанию **включена** (хранится в Tampermonkey через `GM_setValue`).
+
+Переключение: меню Tampermonkey → пункт **«Форматированное копирование: вкл/выкл»**.
+
+| Режим | Поведение |
+|-------|-----------|
+| **Вкл** (default) | Картинки в описании и вложениях — data URI в Markdown; текстовые вложения (json, yaml, md, …) — содержимое в code blocks |
+| **Выкл** | Картинки — только `![alt](https://…)`; текстовые вложения — строка `URL: …` без загрузки содержимого |
 
 ## Лимиты изображений
 

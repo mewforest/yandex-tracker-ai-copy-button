@@ -1,7 +1,6 @@
+import { MAX_IMAGE_BYTES, MAX_TOTAL_IMAGE_BYTES } from "../config/defaults";
 import { httpGetBlob } from "../net/http";
-
-export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-export const MAX_TOTAL_IMAGE_BYTES = 10 * 1024 * 1024;
+import { resolveAbsoluteUrl } from "./resolve-url";
 
 let totalEmbeddedBytes = 0;
 
@@ -26,9 +25,7 @@ export async function embedImageFromUrl(
   url: string,
   label?: string,
 ): Promise<EmbedResult> {
-  const absolute = url.startsWith("http")
-    ? url
-    : `${location.origin}${url.startsWith("/") ? "" : "/"}${url}`;
+  const absolute = resolveAbsoluteUrl(url);
 
   try {
     const blob = await httpGetBlob(absolute);
@@ -64,4 +61,8 @@ export function markdownImage(alt: string, embed: EmbedResult): string {
     return `![${alt}](${embed.dataUrl})`;
   }
   return `![${alt}](${embed.url})\n\n> Image not embedded (${embed.reason}). URL: ${embed.url}`;
+}
+
+export function markdownImageLink(alt: string, url: string): string {
+  return `![${alt}](${resolveAbsoluteUrl(url)})`;
 }

@@ -23,6 +23,7 @@ export function httpRequest<T = string>(
       method,
       url: resolveUrl(url),
       responseType: gmResponseType,
+      anonymous: false,
       onload: (response) => {
         const status = response.status;
         if (status < 200 || status >= 300) {

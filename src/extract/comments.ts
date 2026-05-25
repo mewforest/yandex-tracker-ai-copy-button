@@ -1,10 +1,14 @@
+import type { CopyOptions } from "../config/types";
 import { httpGetJson } from "../net/http";
 import {
   htmlFragmentToMarkdown,
   embedRemoteImagesInMarkdown,
 } from "../utils/html-to-md";
-import { embedImageFromUrl, markdownImage } from "../utils/image-embed";
-
+import {
+  embedImageFromUrl,
+  markdownImage,
+  markdownImageLink,
+} from "../utils/image-embed";
 export interface CommentBlock {
   author: string;
   date: string;
@@ -34,15 +38,18 @@ function formatDate(iso?: string): string {
   }
 }
 
-async function commentBody(comment: TrackerComment): Promise<string> {
+async function commentBody(
+  comment: TrackerComment,
+  options: CopyOptions,
+): Promise<string> {
   let body = "";
   if (comment.textHtml) {
-    body = await htmlFragmentToMarkdown(comment.textHtml);
+    body = await htmlFragmentToMarkdown(comment.textHtml, options);
   } else if (comment.text) {
     body = comment.text;
   }
 
-  body = await embedRemoteImagesInMarkdown(body);
+  body = await embedRemoteImagesInMarkdown(body, options);
 
   if (comment.attachments?.length) {
     const attParts: string[] = [];
@@ -54,8 +61,13 @@ async function commentBody(comment: TrackerComment): Promise<string> {
           ? `${location.origin}/ajax/v2/attachments/${att.id}?inline=true`
           : "");
       if (!url) continue;
-      const embed = await embedImageFromUrl(url, name);
-      attParts.push(markdownImage(name, embed));
+
+      if (options.formatted) {
+        const embed = await embedImageFromUrl(url, name);
+        attParts.push(markdownImage(name, embed));
+      } else {
+        attParts.push(markdownImageLink(name, url));
+      }
     }
     if (attParts.length) {
       body = `${body}\n\n${attParts.join("\n\n")}`.trim();
@@ -67,6 +79,7 @@ async function commentBody(comment: TrackerComment): Promise<string> {
 
 async function fetchCommentsFromApi(
   issueKey: string,
+  options: CopyOptions,
 ): Promise<CommentBlock[] | null> {
   try {
     const data = await httpGetJson<
@@ -77,7 +90,7 @@ async function fetchCommentsFromApi(
 
     const blocks: CommentBlock[] = [];
     for (const c of list) {
-      const body = await commentBody(c);
+      const body = await commentBody(c, options);
       if (!body) continue;
       blocks.push({
         author: c.createdBy?.display ?? "Unknown",
@@ -131,8 +144,9 @@ function fetchCommentsFromDom(root: ParentNode): CommentBlock[] {
 export async function extractComments(
   root: ParentNode,
   issueKey: string,
+  options: CopyOptions,
 ): Promise<CommentBlock[]> {
-  const fromApi = await fetchCommentsFromApi(issueKey);
+  const fromApi = await fetchCommentsFromApi(issueKey, options);
   if (fromApi !== null) return fromApi;
   return fetchCommentsFromDom(root);
 }

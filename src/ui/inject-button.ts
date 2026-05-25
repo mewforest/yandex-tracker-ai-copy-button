@@ -1,6 +1,8 @@
 import { getIssueContext } from "../extract/issue-context";
 import { buildIssueMarkdown } from "../format/build-markdown";
 
+const ISSUE_WRAPPER_SEL = ".page-issue__wrapper, .page-issue__wrapper_compact";
+
 const BTN_CLASS =
   "g-button g-button_view_flat-secondary g-button_size_m g-button_pin_round-round page-issue__header-btn-copy page-issue__header-btn-copy-ai";
 
@@ -80,23 +82,36 @@ function createAiCopyButton(): HTMLButtonElement {
   return button;
 }
 
-export function injectAiCopyButton(header: Element): void {
-  if (header.getAttribute("data-spd-ai-copy-injected") === "1") return;
+function insertAfterCopyKey(
+  copyKeyBtn: HTMLButtonElement,
+  aiBtn: HTMLButtonElement,
+): void {
+  const anchor =
+    copyKeyBtn.parentElement?.tagName === "SPAN"
+      ? copyKeyBtn.parentElement
+      : copyKeyBtn;
 
-  const copyKeyBtn = header.querySelector<HTMLButtonElement>(
-    '.page-issue__header-btn-copy[aria-label="Копировать ключ"], .page-issue__header-btn-copy',
+  const wrapper = document.createElement("span");
+  wrapper.appendChild(aiBtn);
+  anchor.insertAdjacentElement("afterend", wrapper);
+}
+
+export function injectIntoWrapper(wrapper: Element): void {
+  if (wrapper.getAttribute("data-spd-ai-copy-injected") === "1") return;
+
+  const copyKeyBtn = wrapper.querySelector<HTMLButtonElement>(
+    '.page-issue__header-btn-copy[aria-label="Копировать ключ"]',
   );
   if (!copyKeyBtn) return;
 
-  const btn = createAiCopyButton();
-  copyKeyBtn.insertAdjacentElement("afterend", btn);
-  header.setAttribute("data-spd-ai-copy-injected", "1");
+  insertAfterCopyKey(copyKeyBtn, createAiCopyButton());
+  wrapper.setAttribute("data-spd-ai-copy-injected", "1");
 }
 
 export function scanAndInjectButtons(): void {
-  document
-    .querySelectorAll(".page-issue__header")
-    .forEach((header) => injectAiCopyButton(header));
+  document.querySelectorAll(ISSUE_WRAPPER_SEL).forEach((wrapper) => {
+    injectIntoWrapper(wrapper);
+  });
 }
 
 export function startButtonObserver(): void {
