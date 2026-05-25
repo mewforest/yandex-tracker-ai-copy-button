@@ -3,6 +3,7 @@ import { copyMediaItemsToClipboard } from "../clipboard/copy-media";
 import { getIssueContext } from "../extract/issue-context";
 import { buildIssueCopy } from "../format/build-issue-copy";
 import { copySuccessLabel } from "../utils/plural-ru";
+import { showScriptNotification } from "./notify";
 
 const ISSUE_WRAPPER_SEL = ".page-issue__wrapper, .page-issue__wrapper_compact";
 
@@ -30,6 +31,7 @@ function showSuccess(button: HTMLButtonElement, mediaCount: number): void {
   button.classList.add("g-button_selected");
   button.setAttribute("aria-label", label);
   setButtonIcon(button, CHECK_ICON_SVG);
+  showScriptNotification(label, { pageToast: true, timeout: 2000 });
 
   window.setTimeout(() => {
     button.classList.remove("g-button_selected");
@@ -39,8 +41,10 @@ function showSuccess(button: HTMLButtonElement, mediaCount: number): void {
 }
 
 function showError(button: HTMLButtonElement): void {
+  const message = "Ошибка копирования";
   button.classList.add("g-button_view_flat-danger");
-  button.setAttribute("aria-label", "Ошибка копирования");
+  button.setAttribute("aria-label", message);
+  showScriptNotification(message, { pageToast: true, timeout: 2000 });
   window.setTimeout(() => {
     button.classList.remove("g-button_view_flat-danger");
     button.setAttribute("aria-label", "Копировать для ИИ");

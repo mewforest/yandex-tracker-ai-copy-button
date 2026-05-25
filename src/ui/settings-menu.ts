@@ -4,23 +4,27 @@ import {
   setCopyMediaToClipboard,
   setEmbedTextAttachments,
 } from "../config/settings";
+import { showScriptNotification } from "./notify";
 
-function embedTextLabel(): string {
-  return `Встраивать текстовые вложения: ${isEmbedTextAttachments() ? "вкл" : "выкл"}`;
+const MENU_EMBED_TEXT = "Встраивать текстовые вложения";
+const MENU_COPY_MEDIA = "Копировать нетекстовые вложения";
+
+function embedTextStatusLabel(): string {
+  return `${MENU_EMBED_TEXT}: ${isEmbedTextAttachments() ? "вкл" : "выкл"}`;
 }
 
-function copyMediaLabel(): string {
-  return `Копировать нетекстовые вложения: ${isCopyMediaToClipboard() ? "вкл" : "выкл"}`;
+function copyMediaStatusLabel(): string {
+  return `${MENU_COPY_MEDIA}: ${isCopyMediaToClipboard() ? "вкл" : "выкл"}`;
 }
 
 export function registerSettingsMenu(): void {
-  GM_registerMenuCommand(embedTextLabel(), () => {
+  GM_registerMenuCommand(MENU_EMBED_TEXT, () => {
     setEmbedTextAttachments(!isEmbedTextAttachments());
-    GM_notification({ text: embedTextLabel(), timeout: 2000 });
+    showScriptNotification(embedTextStatusLabel());
   });
 
-  GM_registerMenuCommand(copyMediaLabel(), () => {
+  GM_registerMenuCommand(MENU_COPY_MEDIA, () => {
     setCopyMediaToClipboard(!isCopyMediaToClipboard());
-    GM_notification({ text: copyMediaLabel(), timeout: 2000 });
+    showScriptNotification(copyMediaStatusLabel());
   });
 }
