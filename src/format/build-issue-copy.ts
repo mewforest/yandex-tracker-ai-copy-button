@@ -1,12 +1,13 @@
 import type { IssueContext } from "../extract/issue-context";
 import type { IssueMetadata } from "../extract/metadata";
 import type { CommentBlock } from "../extract/comments";
+import type { IssueCopyResult } from "../config/types";
 import { extractMetadata } from "../extract/metadata";
 import { extractDescription } from "../extract/description";
 import { extractAttachments } from "../extract/attachments";
 import { extractComments } from "../extract/comments";
+import { collectMediaItems } from "../extract/media-items";
 import { getCopyOptions } from "../config/settings";
-import { resetImageEmbedBudget } from "../utils/image-embed";
 
 function formatMetadata(meta: IssueMetadata): string {
   return [
@@ -28,16 +29,19 @@ function formatComments(comments: CommentBlock[]): string | null {
   return ["## Комментарии", "", ...parts].join("\n");
 }
 
-export async function buildIssueMarkdown(ctx: IssueContext): Promise<string> {
-  resetImageEmbedBudget();
+export async function buildIssueCopy(
+  ctx: IssueContext,
+): Promise<IssueCopyResult> {
   const options = getCopyOptions();
 
-  const [meta, description, attachments, comments] = await Promise.all([
-    Promise.resolve(extractMetadata(ctx.root)),
-    extractDescription(ctx.root, ctx.key, options),
-    extractAttachments(ctx.root, options),
-    extractComments(ctx.root, ctx.key, options),
-  ]);
+  const [meta, description, attachments, comments, mediaItems] =
+    await Promise.all([
+      Promise.resolve(extractMetadata(ctx.root)),
+      extractDescription(ctx.root, ctx.key),
+      extractAttachments(ctx.root, options),
+      extractComments(ctx.root, ctx.key, options),
+      collectMediaItems(ctx.root, ctx.key, options),
+    ]);
 
   const sections = [
     `# ${ctx.key}: ${ctx.title}`,
@@ -60,5 +64,8 @@ export async function buildIssueMarkdown(ctx: IssueContext): Promise<string> {
     sections.push("", commentsMd);
   }
 
-  return sections.join("\n").trim() + "\n";
+  return {
+    markdown: sections.join("\n").trim() + "\n",
+    mediaItems,
+  };
 }

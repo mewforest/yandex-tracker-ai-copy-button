@@ -1,12 +1,7 @@
 import TurndownService from "turndown";
 // @ts-expect-error no types
 import { gfm } from "turndown-plugin-gfm";
-import type { CopyOptions } from "../config/types";
-import {
-  embedImageFromUrl,
-  markdownImage,
-  markdownImageLink,
-} from "./image-embed";
+import { markdownImageLink } from "./image-markdown";
 import { resolveAbsoluteUrl } from "./resolve-url";
 
 const turndown = new TurndownService({
@@ -47,66 +42,38 @@ function prepareClone(root: HTMLElement): HTMLElement {
   return clone;
 }
 
-async function embedImagesInElement(
-  root: HTMLElement,
-  options: CopyOptions,
-): Promise<void> {
-  const images = [...root.querySelectorAll("img[src]")] as HTMLImageElement[];
-  await Promise.all(
-    images.map(async (img) => {
-      const src = img.getAttribute("src");
-      if (!src || src.startsWith("data:")) return;
-      const alt = img.getAttribute("alt") || "image";
-      const absolute = resolveAbsoluteUrl(src);
-
-      if (!options.formatted) {
-        img.setAttribute("src", absolute);
-        return;
-      }
-
-      const embed = await embedImageFromUrl(src, alt);
-      if (embed.kind === "data") {
-        img.setAttribute("src", embed.dataUrl);
-      } else {
-        img.setAttribute("src", absolute);
-      }
-    }),
-  );
+function normalizeImagesInElement(root: HTMLElement): void {
+  for (const img of root.querySelectorAll("img[src]")) {
+    const src = img.getAttribute("src");
+    if (!src || src.startsWith("data:")) continue;
+    img.setAttribute("src", resolveAbsoluteUrl(src));
+  }
 }
 
-export async function htmlToMarkdown(
-  element: HTMLElement,
-  options: CopyOptions,
-): Promise<string> {
+export async function htmlToMarkdown(element: HTMLElement): Promise<string> {
   const clone = prepareClone(element);
-  await embedImagesInElement(clone, options);
+  normalizeImagesInElement(clone);
   let md = turndown.turndown(clone.innerHTML);
   md = md.replace(/\n{3,}/g, "\n\n").trim();
   return md;
 }
 
-export async function htmlFragmentToMarkdown(
-  html: string,
-  options: CopyOptions,
-): Promise<string> {
+export async function htmlFragmentToMarkdown(html: string): Promise<string> {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = html;
   const yfm = wrapper.querySelector(".yfm") ?? wrapper;
-  return htmlToMarkdown(yfm as HTMLElement, options);
+  return htmlToMarkdown(yfm as HTMLElement);
 }
 
-function isEmbeddableImageUrl(url: string): boolean {
+function isImageMarkdownUrl(url: string): boolean {
   if (!url || url.startsWith("data:")) return false;
   return (
     /^https?:\/\//i.test(url) || url.startsWith("/") || url.startsWith("//")
   );
 }
 
-/** Post-process markdown img tags that still have remote or relative URLs */
-export async function embedRemoteImagesInMarkdown(
-  md: string,
-  options: CopyOptions,
-): Promise<string> {
+/** Ensure markdown images use absolute URLs */
+export async function normalizeImagesInMarkdown(md: string): Promise<string> {
   const imgRe = /!\[([^\]]*)\]\(([^)]+)\)/g;
   const matches = [...md.matchAll(imgRe)];
   if (!matches.length) return md;
@@ -114,16 +81,8 @@ export async function embedRemoteImagesInMarkdown(
   let result = md;
   for (const match of matches) {
     const [full, alt, url] = match;
-    if (!isEmbeddableImageUrl(url)) continue;
-
-    const replacement = options.formatted
-      ? markdownImage(
-          alt || "image",
-          await embedImageFromUrl(url, alt || "image"),
-        )
-      : markdownImageLink(alt || "image", url);
-
-    result = result.replace(full, replacement);
+    if (!isImageMarkdownUrl(url)) continue;
+    result = result.replace(full, markdownImageLink(alt || "image", url));
   }
   return result;
 }

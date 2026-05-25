@@ -2,13 +2,11 @@ import type { CopyOptions } from "../config/types";
 import { httpGetJson } from "../net/http";
 import {
   htmlFragmentToMarkdown,
-  embedRemoteImagesInMarkdown,
+  normalizeImagesInMarkdown,
 } from "../utils/html-to-md";
-import {
-  embedImageFromUrl,
-  markdownImage,
-  markdownImageLink,
-} from "../utils/image-embed";
+import { markdownImageLink } from "../utils/image-markdown";
+import { isMediaAttachment } from "./attachment-utils";
+
 export interface CommentBlock {
   author: string;
   date: string;
@@ -38,34 +36,36 @@ function formatDate(iso?: string): string {
   }
 }
 
-async function commentBody(
-  comment: TrackerComment,
-  options: CopyOptions,
-): Promise<string> {
+function attachmentUrl(att: {
+  display?: string;
+  self?: string;
+  id?: string;
+}): string {
+  return (
+    att.self ??
+    (att.id
+      ? `${location.origin}/ajax/v2/attachments/${att.id}?inline=true`
+      : "")
+  );
+}
+
+async function commentBody(comment: TrackerComment): Promise<string> {
   let body = "";
   if (comment.textHtml) {
-    body = await htmlFragmentToMarkdown(comment.textHtml, options);
+    body = await htmlFragmentToMarkdown(comment.textHtml);
   } else if (comment.text) {
     body = comment.text;
   }
 
-  body = await embedRemoteImagesInMarkdown(body, options);
+  body = await normalizeImagesInMarkdown(body);
 
   if (comment.attachments?.length) {
     const attParts: string[] = [];
     for (const att of comment.attachments) {
       const name = att.display ?? `attachment-${att.id}`;
-      const url =
-        att.self ??
-        (att.id
-          ? `${location.origin}/ajax/v2/attachments/${att.id}?inline=true`
-          : "");
+      const url = attachmentUrl(att);
       if (!url) continue;
-
-      if (options.formatted) {
-        const embed = await embedImageFromUrl(url, name);
-        attParts.push(markdownImage(name, embed));
-      } else {
+      if (isMediaAttachment(name)) {
         attParts.push(markdownImageLink(name, url));
       }
     }
@@ -79,7 +79,6 @@ async function commentBody(
 
 async function fetchCommentsFromApi(
   issueKey: string,
-  options: CopyOptions,
 ): Promise<CommentBlock[] | null> {
   try {
     const data = await httpGetJson<
@@ -90,7 +89,7 @@ async function fetchCommentsFromApi(
 
     const blocks: CommentBlock[] = [];
     for (const c of list) {
-      const body = await commentBody(c, options);
+      const body = await commentBody(c);
       if (!body) continue;
       blocks.push({
         author: c.createdBy?.display ?? "Unknown",
@@ -144,9 +143,9 @@ function fetchCommentsFromDom(root: ParentNode): CommentBlock[] {
 export async function extractComments(
   root: ParentNode,
   issueKey: string,
-  options: CopyOptions,
+  _options: CopyOptions,
 ): Promise<CommentBlock[]> {
-  const fromApi = await fetchCommentsFromApi(issueKey, options);
+  const fromApi = await fetchCommentsFromApi(issueKey);
   if (fromApi !== null) return fromApi;
   return fetchCommentsFromDom(root);
 }

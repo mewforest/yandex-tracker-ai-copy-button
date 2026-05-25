@@ -1,9 +1,8 @@
-import type { CopyOptions } from "../config/types";
 import { httpGetJson } from "../net/http";
 import {
   htmlToMarkdown,
   htmlFragmentToMarkdown,
-  embedRemoteImagesInMarkdown,
+  normalizeImagesInMarkdown,
 } from "../utils/html-to-md";
 
 interface TrackerIssueApi {
@@ -14,7 +13,6 @@ interface TrackerIssueApi {
 export async function extractDescription(
   root: ParentNode,
   issueKey: string,
-  options: CopyOptions,
 ): Promise<string> {
   try {
     const issue = await httpGetJson<TrackerIssueApi>(
@@ -22,11 +20,10 @@ export async function extractDescription(
     );
     if (issue.description?.trim()) {
       if (issue.markupType === "md") {
-        return embedRemoteImagesInMarkdown(issue.description.trim(), options);
+        return normalizeImagesInMarkdown(issue.description.trim());
       }
-      return embedRemoteImagesInMarkdown(
-        await htmlFragmentToMarkdown(issue.description, options),
-        options,
+      return normalizeImagesInMarkdown(
+        await htmlFragmentToMarkdown(issue.description),
       );
     }
   } catch {
@@ -38,7 +35,7 @@ export async function extractDescription(
   );
   if (!yfm) return "—";
 
-  let md = await htmlToMarkdown(yfm, options);
-  md = await embedRemoteImagesInMarkdown(md, options);
+  let md = await htmlToMarkdown(yfm);
+  md = await normalizeImagesInMarkdown(md);
   return md || "—";
 }

@@ -1,3 +1,14 @@
 export interface CopyOptions {
-  formatted: boolean;
+  embedTextAttachments: boolean;
+  copyMediaToClipboard: boolean;
+}
+
+export interface IssueCopyResult {
+  markdown: string;
+  mediaItems: MediaItem[];
+}
+
+export interface MediaItem {
+  url: string;
+  name: string;
 }

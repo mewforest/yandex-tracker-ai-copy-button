@@ -1,7 +1,11 @@
+/** @deprecated migrated to SPD_EMBED_TEXT_ATTACHMENTS */
 export const SPD_COPY_FORMATTED_KEY = "SPD_COPY_FORMATTED";
 
-/** Default: formatted copy (embedded images + text attachment contents). */
-export const SPD_COPY_FORMATTED_DEFAULT = true;
+export const SPD_EMBED_TEXT_ATTACHMENTS_KEY = "SPD_EMBED_TEXT_ATTACHMENTS";
+export const SPD_COPY_MEDIA_TO_CLIPBOARD_KEY = "SPD_COPY_MEDIA_TO_CLIPBOARD";
 
-export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-export const MAX_TOTAL_IMAGE_BYTES = 10 * 1024 * 1024;
+export const SPD_EMBED_TEXT_ATTACHMENTS_DEFAULT = true;
+export const SPD_COPY_MEDIA_TO_CLIPBOARD_DEFAULT = true;
+
+export const MAX_MEDIA_CLIPBOARD_ITEMS = 20;
+export const MEDIA_CLIPBOARD_DELAY_MS = 100;

@@ -1,5 +1,8 @@
+import { getCopyOptions } from "../config/settings";
+import { copyMediaItemsToClipboard } from "../clipboard/copy-media";
 import { getIssueContext } from "../extract/issue-context";
-import { buildIssueMarkdown } from "../format/build-markdown";
+import { buildIssueCopy } from "../format/build-issue-copy";
+import { copySuccessLabel } from "../utils/plural-ru";
 
 const ISSUE_WRAPPER_SEL = ".page-issue__wrapper, .page-issue__wrapper_compact";
 
@@ -19,12 +22,13 @@ function setButtonIcon(button: HTMLButtonElement, svg: string): void {
   button.innerHTML = `<span class="g-button__icon"><span class="g-button__icon-inner">${svg}</span></span>`;
 }
 
-function showSuccess(button: HTMLButtonElement): void {
+function showSuccess(button: HTMLButtonElement, mediaCount: number): void {
   const prevLabel = button.getAttribute("aria-label");
   const prevIcon = button.querySelector(".g-button__icon-inner")?.innerHTML;
+  const label = copySuccessLabel(mediaCount);
 
   button.classList.add("g-button_selected");
-  button.setAttribute("aria-label", "Скопировано");
+  button.setAttribute("aria-label", label);
   setButtonIcon(button, CHECK_ICON_SVG);
 
   window.setTimeout(() => {
@@ -61,9 +65,16 @@ async function onCopyClick(button: HTMLButtonElement): Promise<void> {
     const ctx = getIssueContext(button);
     if (!ctx) throw new Error("Issue context not found");
 
-    const markdown = await buildIssueMarkdown(ctx);
+    const { markdown, mediaItems } = await buildIssueCopy(ctx);
+    const options = getCopyOptions();
+
+    let mediaCopiedCount = 0;
+    if (options.copyMediaToClipboard && mediaItems.length) {
+      mediaCopiedCount = await copyMediaItemsToClipboard(mediaItems);
+    }
+
     await copyText(markdown);
-    showSuccess(button);
+    showSuccess(button, mediaCopiedCount);
   } catch {
     showError(button);
   } finally {
