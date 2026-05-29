@@ -10,9 +10,31 @@ const ISSUE_WRAPPER_SEL = ".page-issue__wrapper, .page-issue__wrapper_compact";
 const BTN_CLASS =
   "g-button g-button_view_flat-secondary g-button_size_m g-button_pin_round-round page-issue__header-btn-copy page-issue__header-btn-copy-ai";
 
-const AI_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="g-icon" fill="currentColor" stroke="none" aria-hidden="true" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 1.5a.75.75 0 0 1 .67.41l1.37 2.74 2.74 1.37a.75.75 0 0 1 0 1.34l-2.74 1.37-1.37 2.74a.75.75 0 0 1-1.34 0L6.59 8.32 3.85 6.95a.75.75 0 0 1 0-1.34l2.74-1.37L7.33 1.91A.75.75 0 0 1 8 1.5Zm0 2.57L7.18 6.1 5.57 6.9 7.18 7.7 8 9.43l.82-1.73 1.61-.8-1.61-.8L8 4.07ZM3 10.5a.75.75 0 0 1 .53.22l1.06 1.06.22 1.06a.75.75 0 0 1-1.34.67l-.22-1.06-1.06-.22a.75.75 0 0 1-.67-1.34l1.06-.22 1.06-1.06A.75.75 0 0 1 3 10.5Zm10 0c.2 0 .39.08.53.22l1.06 1.06.22 1.06a.75.75 0 0 1-1.34.67l-.22-1.06-1.06-.22a.75.75 0 0 1-.67-1.34l1.06-.22 1.06-1.06c.14-.14.33-.22.53-.22Z"/></svg>`;
+const COPY_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="g-icon" fill="currentColor" stroke="none" aria-hidden="true" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.5H8A1.5 1.5 0 0 0 6.5 4v1H8a3 3 0 0 1 3 3v1.5h1A1.5 1.5 0 0 0 13.5 8V4A1.5 1.5 0 0 0 12 2.5M11 11h1a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v1H4a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3zM4 6.5h4A1.5 1.5 0 0 1 9.5 8v4A1.5 1.5 0 0 1 8 13.5H4A1.5 1.5 0 0 1 2.5 12V8A1.5 1.5 0 0 1 4 6.5"/></svg>`;
 
 const CHECK_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="g-icon" fill="currentColor" stroke="none" aria-hidden="true" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 8.28a.75.75 0 1 1 1.06-1.06L6 9.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>`;
+
+const BTN_TEXT = "AI";
+const AI_COPY_BTN_STYLE_ID = "spd-ai-copy-btn-style";
+
+function injectAiCopyButtonStyles(): void {
+  if (document.getElementById(AI_COPY_BTN_STYLE_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = AI_COPY_BTN_STYLE_ID;
+  style.textContent = `
+.page-issue__header-btn-copy-ai {
+  min-width: 48px !important;
+  background: #edeff00F;
+  border-radius: 10px;
+}
+`.trim();
+  document.head.appendChild(style);
+}
+
+function setButtonContent(button: HTMLButtonElement, svg: string): void {
+  button.innerHTML = `<span class="g-button__icon"><span class="g-button__icon-inner">${svg}</span></span><span class="g-button__text">${BTN_TEXT}</span>`;
+}
 
 function setButtonIcon(button: HTMLButtonElement, svg: string): void {
   const inner = button.querySelector(".g-button__icon-inner");
@@ -20,7 +42,7 @@ function setButtonIcon(button: HTMLButtonElement, svg: string): void {
     inner.innerHTML = svg;
     return;
   }
-  button.innerHTML = `<span class="g-button__icon"><span class="g-button__icon-inner">${svg}</span></span>`;
+  setButtonContent(button, svg);
 }
 
 function showSuccess(button: HTMLButtonElement, mediaCount: number): void {
@@ -36,7 +58,7 @@ function showSuccess(button: HTMLButtonElement, mediaCount: number): void {
   window.setTimeout(() => {
     button.classList.remove("g-button_selected");
     if (prevLabel) button.setAttribute("aria-label", prevLabel);
-    setButtonIcon(button, prevIcon ?? AI_ICON_SVG);
+    setButtonIcon(button, prevIcon ?? COPY_ICON_SVG);
   }, 2000);
 }
 
@@ -92,7 +114,7 @@ function createAiCopyButton(): HTMLButtonElement {
   button.className = BTN_CLASS;
   button.setAttribute("aria-label", "Копировать для ИИ");
   button.setAttribute("data-spd-ai-copy", "1");
-  setButtonIcon(button, AI_ICON_SVG);
+  setButtonContent(button, COPY_ICON_SVG);
   button.addEventListener("click", () => void onCopyClick(button));
   return button;
 }
@@ -130,6 +152,7 @@ export function scanAndInjectButtons(): void {
 }
 
 export function startButtonObserver(): void {
+  injectAiCopyButtonStyles();
   scanAndInjectButtons();
 
   const observer = new MutationObserver(() => {
