@@ -2,6 +2,8 @@
 
 Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи.
 
+<img width="3128" height="1546" alt="image_2026-05-29_18-02-03" src="https://github.com/user-attachments/assets/95f9dbdd-b044-4bb0-a54f-09f8c6010ff2" />
+
 ## Доступ к вложениям (XHR)
 
 Скрипт запрашивает файлы через `GM_xmlhttpRequest`. Вложения с Трекера часто редиректят на `storage.mds.yandex.net` — эти домены указаны в `@connect` сборки.
