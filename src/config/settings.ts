@@ -4,6 +4,8 @@ import {
   SPD_EMBED_TEXT_ATTACHMENTS_KEY,
   SPD_COPY_MEDIA_TO_CLIPBOARD_DEFAULT,
   SPD_COPY_MEDIA_TO_CLIPBOARD_KEY,
+  SPD_ADD_AI_PROMPT_DEFAULT,
+  SPD_ADD_AI_PROMPT_KEY,
 } from "./defaults";
 import type { CopyOptions } from "./types";
 
@@ -41,9 +43,18 @@ export function setCopyMediaToClipboard(value: boolean): void {
   GM_setValue(SPD_COPY_MEDIA_TO_CLIPBOARD_KEY, value);
 }
 
+export function isAddAiPrompt(): boolean {
+  return GM_getValue(SPD_ADD_AI_PROMPT_KEY, SPD_ADD_AI_PROMPT_DEFAULT);
+}
+
+export function setAddAiPrompt(value: boolean): void {
+  GM_setValue(SPD_ADD_AI_PROMPT_KEY, value);
+}
+
 export function getCopyOptions(): CopyOptions {
   return {
     embedTextAttachments: isEmbedTextAttachments(),
     copyMediaToClipboard: isCopyMediaToClipboard(),
+    addAiPrompt: isAddAiPrompt(),
   };
 }

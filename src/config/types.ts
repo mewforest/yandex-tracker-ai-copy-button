@@ -1,6 +1,7 @@
 export interface CopyOptions {
   embedTextAttachments: boolean;
   copyMediaToClipboard: boolean;
+  addAiPrompt: boolean;
 }
 
 export interface IssueCopyResult {
