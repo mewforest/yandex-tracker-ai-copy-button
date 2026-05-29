@@ -52,6 +52,23 @@ export function isMediaAttachment(name: string): boolean {
   return IMAGE_EXTENSIONS.has(ext) || VIDEO_EXTENSIONS.has(ext);
 }
 
+const TRAILING_DATE_RE =
+  /\d{1,2}\s+(?:янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)\S*$/i;
+
+function extractAttachmentName(link: HTMLAnchorElement, id: string): string {
+  const badgeText = link.querySelector(".ep-file-badge__text");
+  if (badgeText) {
+    const fromLabel = badgeText.getAttribute("aria-label")?.trim();
+    if (fromLabel) return fromLabel;
+    const fromText = badgeText.textContent?.trim();
+    if (fromText) return fromText;
+  }
+
+  const rawName = link.textContent?.trim() ?? "";
+  const withoutDate = rawName.replace(TRAILING_DATE_RE, "").trim();
+  return withoutDate || `attachment-${id}`;
+}
+
 export function parseAttachmentLinks(root: ParentNode): AttachmentLink[] {
   const links = root.querySelectorAll<HTMLAnchorElement>(
     '.entity-description-attachments a[href*="/ajax/v2/attachments/"]',
@@ -66,15 +83,7 @@ export function parseAttachmentLinks(root: ParentNode): AttachmentLink[] {
     if (seen.has(id)) continue;
     seen.add(id);
 
-    const rawName = link.textContent?.trim() ?? "";
-    const name =
-      rawName
-        .replace(
-          /\s+\d{1,2}\s+(?:янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)\S*$/i,
-          "",
-        )
-        .replace(/\s+\d{1,2}\s+\S+$/i, "")
-        .trim() || `attachment-${id}`;
+    const name = extractAttachmentName(link, id);
     const url = link.href.includes("inline=")
       ? link.href
       : `${link.href.split("?")[0]}?inline=true`;
