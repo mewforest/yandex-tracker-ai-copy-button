@@ -17,7 +17,7 @@ const CHECK_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" heigh
 const CLOCK_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="g-icon" fill="currentColor" stroke="none" aria-hidden="true" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.5 8a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0M8.75 4.5a.75.75 0 0 0-1.5 0V8a.75.75 0 0 0 .3.6l2 1.5a.75.75 0 1 0 .9-1.2l-1.7-1.275z"/></svg>`;
 
 const BTN_TEXT = "AI";
-const AI_COPY_BTN_STYLE_ID = "spd-ai-copy-btn-style";
+const AI_COPY_BTN_STYLE_ID = "ai-copy-btn-style";
 
 function injectAiCopyButtonStyles(): void {
   if (document.getElementById(AI_COPY_BTN_STYLE_ID)) return;
@@ -116,7 +116,7 @@ function createAiCopyButton(): HTMLButtonElement {
   button.type = "button";
   button.className = BTN_CLASS;
   button.setAttribute("aria-label", "Копировать для ИИ");
-  button.setAttribute("data-spd-ai-copy", "1");
+  button.setAttribute("data-ai-copy", "1");
   setButtonContent(button, COPY_ICON_SVG);
   button.addEventListener("click", () => void onCopyClick(button));
   return button;
@@ -137,7 +137,7 @@ function insertAfterCopyKey(
 }
 
 export function injectIntoWrapper(wrapper: Element): void {
-  if (wrapper.getAttribute("data-spd-ai-copy-injected") === "1") return;
+  if (wrapper.getAttribute("data-ai-copy-injected") === "1") return;
 
   const copyKeyBtn = wrapper.querySelector<HTMLButtonElement>(
     '.page-issue__header-btn-copy[aria-label="Копировать ключ"]',
@@ -145,7 +145,7 @@ export function injectIntoWrapper(wrapper: Element): void {
   if (!copyKeyBtn) return;
 
   insertAfterCopyKey(copyKeyBtn, createAiCopyButton());
-  wrapper.setAttribute("data-spd-ai-copy-injected", "1");
+  wrapper.setAttribute("data-ai-copy-injected", "1");
 }
 
 export function scanAndInjectButtons(): void {

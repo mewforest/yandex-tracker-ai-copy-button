@@ -1,5 +1,5 @@
 const NOTIFY_TITLE = "Yandex Tracker - AI Copy Button";
-const TOAST_ATTR = "data-spd-copy-toast";
+const TOAST_ATTR = "data-ai-copy-toast";
 
 function showPageToast(text: string, durationMs: number): void {
   document.querySelector(`[${TOAST_ATTR}]`)?.remove();
