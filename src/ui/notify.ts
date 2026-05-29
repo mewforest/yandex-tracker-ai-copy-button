@@ -1,4 +1,4 @@
-const NOTIFY_TITLE = "SPD Tracker — Копировать для ИИ";
+const NOTIFY_TITLE = "Yandex Tracker - AI Copy Button";
 const TOAST_ATTR = "data-spd-copy-toast";
 
 function showPageToast(text: string, durationMs: number): void {

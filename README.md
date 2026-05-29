@@ -1,4 +1,4 @@
-# SPD Tracker — Копировать для ИИ
+# Yandex Tracker - AI Copy Button
 
 Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи.
 
@@ -8,14 +8,14 @@ Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](http
 
 Если в консоли остаётся `Refused to connect` / `not whitelisted URL`:
 
-1. Переустановите скрипт из свежего `dist/spd-tracker-ai-copy.user.js` после `npm run build`.
+1. Переустановите скрипт из свежего `dist/yandex-tracker-ai-copy-button.user.js` после `npm run build`.
 2. Tampermonkey → настройки скрипта → **XHR Security** → уберите `storage.mds.yandex.net` из blacklist, если он туда попал после отказа.
 
 ## Установка
 
 1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или Violentmonkey / Greasemonkey).
 2. Соберите скрипт: `npm run build`
-3. Откройте `dist/spd-tracker-ai-copy.user.js` и установите в менеджер userscript (или перетащите файл в Tampermonkey).
+3. Откройте `dist/yandex-tracker-ai-copy-button.user.js` и установите в менеджер userscript (или перетащите файл в Tampermonkey).
 
 Для разработки: `npm run dev` — HMR и автоматическое обновление скрипта.
 
@@ -31,7 +31,7 @@ Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](http
 - вложения: текстовые файлы (json, yaml, md, …) — в code blocks или URL; медиа — URL в Markdown
 - комментарии (если есть)
 
-Картинки и другие нетекстовые файлы **не** встраиваются в Markdown как base64. При включённой опции «Копировать медиа (медленно)» бинарники дополнительно пишутся в системный буфер через `navigator.clipboard` (удобно с Maccy: каждый файл — отдельная запись в истории), затем в буфер попадает текст ТЗ.
+При включённой опции «Копировать медиа (медленно)» бинарники дополнительно пишутся в системный буфер через `navigator.clipboard` (удобно с Maccy: каждый файл — отдельная запись в истории), затем в буфер попадает текст ТЗ.
 
 ## Настройки (меню Tampermonkey)
 
@@ -54,19 +54,11 @@ Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](http
 
 После клика: `Скопировано ТЗ` или `Скопировано ТЗ и N медиафайлов` (aria-label кнопки на ~2 с).
 
-## Ручной тест
-
-| URL                             | Проверка                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------ |
-| https://tracker.yandex.ru/GEB-1 | Markdown без `data:image`; при media вкл — записи в Maccy; активный буфер — текст ТЗ |
-| https://tracker.yandex.ru/GEB-2 | чек-лист с `[x]`/`[ ]`, короткое описание, png                                       |
-| https://tracker.yandex.ru/GEB   | задача в side drawer (если включён режим карточки)                                   |
-
 ## Скрипты
 
 ```bash
 npm run dev        # разработка
-npm run build      # dist/spd-tracker-ai-copy.user.js
+npm run build      # dist/yandex-tracker-ai-copy-button.user.js
 npm run typecheck  # проверка типов
 npm run format     # prettier
 ```

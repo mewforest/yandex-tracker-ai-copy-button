@@ -6,12 +6,11 @@ export default defineConfig({
     monkey({
       entry: 'src/main.ts',
       userscript: {
-        name: 'SPD Tracker — Копировать для ИИ',
-        namespace: 'spd-tracker-ai-copy',
+        name: 'Yandex Tracker - AI Copy Button',
+        namespace: 'yandex-tracker-ai-copy-button',
         version: '1.0.0',
         description:
           'Добавляет кнопку копирования задачи Яндекс Трекера в Markdown для ИИ',
-        author: 'SPD',
         match: ['https://tracker.yandex.ru/*'],
         connect: [
           'tracker.yandex.ru',
@@ -32,7 +31,7 @@ export default defineConfig({
         'run-at': 'document-idle',
       },
       build: {
-        fileName: 'spd-tracker-ai-copy.user.js',
+        fileName: 'yandex-tracker-ai-copy-button.user.js',
       },
     }),
   ],
