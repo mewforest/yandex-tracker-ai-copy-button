@@ -15,7 +15,7 @@ function fenceLang(ext: string): string {
   return ext || "";
 }
 
-async function formatTextAttachment(
+export async function formatTextAttachment(
   name: string,
   url: string,
 ): Promise<string> {

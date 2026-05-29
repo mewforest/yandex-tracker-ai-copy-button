@@ -38,11 +38,6 @@ export interface AttachmentLink {
   url: string;
 }
 
-export function extensionOf(name: string): string {
-  const dot = name.lastIndexOf(".");
-  return dot >= 0 ? name.slice(dot + 1).toLowerCase() : "";
-}
-
 export function isTextAttachment(name: string): boolean {
   return TEXT_EXTENSIONS.has(extensionOf(name));
 }
@@ -53,7 +48,18 @@ export function isMediaAttachment(name: string): boolean {
 }
 
 const TRAILING_DATE_RE =
-  /\d{1,2}\s+(?:янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)\S*$/i;
+  /\s+\d{1,2}\s+(?:янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)\S*$/i;
+
+const TRAILING_DATE_PAREN_RE =
+  /\s*\(\d{1,2}\s+(?:янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)[^)]*\)\s*$/i;
+
+/** Strip Tracker upload date suffixes from attachment display names. */
+export function normalizeAttachmentName(name: string): string {
+  return name
+    .replace(TRAILING_DATE_PAREN_RE, "")
+    .replace(TRAILING_DATE_RE, "")
+    .trim();
+}
 
 function extractAttachmentName(link: HTMLAnchorElement, id: string): string {
   const badgeText = link.querySelector(".ep-file-badge__text");
@@ -65,14 +71,19 @@ function extractAttachmentName(link: HTMLAnchorElement, id: string): string {
   }
 
   const rawName = link.textContent?.trim() ?? "";
-  const withoutDate = rawName.replace(TRAILING_DATE_RE, "").trim();
+  const withoutDate = normalizeAttachmentName(rawName);
   return withoutDate || `attachment-${id}`;
 }
 
-export function parseAttachmentLinks(root: ParentNode): AttachmentLink[] {
-  const links = root.querySelectorAll<HTMLAnchorElement>(
-    '.entity-description-attachments a[href*="/ajax/v2/attachments/"]',
-  );
+export function extensionOf(name: string): string {
+  const base = normalizeAttachmentName(name);
+  const dot = base.lastIndexOf(".");
+  return dot >= 0 ? base.slice(dot + 1).toLowerCase() : "";
+}
+
+function collectAttachmentLinks(
+  links: NodeListOf<HTMLAnchorElement> | HTMLAnchorElement[],
+): AttachmentLink[] {
   const seen = new Set<string>();
   const result: AttachmentLink[] = [];
 
@@ -92,6 +103,23 @@ export function parseAttachmentLinks(root: ParentNode): AttachmentLink[] {
   }
 
   return result;
+}
+
+export function parseAttachmentLinks(root: ParentNode): AttachmentLink[] {
+  return collectAttachmentLinks(
+    root.querySelectorAll<HTMLAnchorElement>(
+      '.entity-description-attachments a[href*="/ajax/v2/attachments/"]',
+    ),
+  );
+}
+
+/** Attachment links inside a comment or other nested block. */
+export function parseAttachmentLinksIn(root: ParentNode): AttachmentLink[] {
+  return collectAttachmentLinks(
+    root.querySelectorAll<HTMLAnchorElement>(
+      'a[href*="/ajax/v2/attachments/"]',
+    ),
+  );
 }
 
 export function formatAttachmentUrlLine(name: string, url: string): string {

@@ -1,7 +1,11 @@
 import type { CopyOptions, MediaItem } from "../config/types";
 import { httpGetJson } from "../net/http";
 import { resolveAbsoluteUrl } from "../utils/resolve-url";
-import { isTextAttachment, parseAttachmentLinks } from "./attachment-utils";
+import {
+  isTextAttachment,
+  parseAttachmentLinks,
+  parseAttachmentLinksIn,
+} from "./attachment-utils";
 
 interface TrackerComment {
   attachments?: Array<{ display?: string; self?: string; id?: string }>;
@@ -71,12 +75,21 @@ async function collectFromComments(
   }
 
   const commentImgs = root.querySelectorAll<HTMLElement>(
-    ".comments img[src], .issue-activity-section img[src]",
+    ".comments img[src], .issue-activity-section img[src], .comment-view__text img[src], .comment-view__attachments img[src]",
   );
   for (const img of commentImgs) {
     const src = img.getAttribute("src");
     if (!src || src.startsWith("data:")) continue;
     addMedia(map, src, img.getAttribute("alt")?.trim() || "image");
+  }
+
+  for (const attRoot of root.querySelectorAll<HTMLElement>(
+    ".comment-view__attachments, .ep-files-feed_has-attachments",
+  )) {
+    for (const item of parseAttachmentLinksIn(attRoot)) {
+      if (isTextAttachment(item.name)) continue;
+      addMedia(map, item.url, item.name);
+    }
   }
 }
 
