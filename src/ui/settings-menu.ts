@@ -25,6 +25,8 @@ function addAiPromptStatusLabel(): string {
 }
 
 export function registerSettingsMenu(): void {
+  if (typeof GM_registerMenuCommand === "undefined") return;
+
   GM_registerMenuCommand(MENU_EMBED_TEXT, () => {
     setEmbedTextAttachments(!isEmbedTextAttachments());
     showScriptNotification(embedTextStatusLabel());
