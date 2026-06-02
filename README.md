@@ -1,25 +1,14 @@
 # Yandex Tracker - AI Copy Button
 
-Tampermonkey / Greasemonkey userscript для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи.
+Расширение в формате userscript-а для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи. Позволяет параллельно копировать вложения комментарии и все необходимые метаданные задачи. Работает сразу из коробки, API-токены не требуются.
 
-<img width="3128" height="1546" alt="image_2026-05-29_18-02-03" src="https://github.com/user-attachments/assets/95f9dbdd-b044-4bb0-a54f-09f8c6010ff2" />
-
-## Доступ к вложениям (XHR)
-
-Скрипт запрашивает файлы через `GM_xmlhttpRequest`. Вложения с Трекера часто редиректят на `storage.mds.yandex.net` — эти домены указаны в `@connect` сборки.
-
-Если в консоли остаётся `Refused to connect` / `not whitelisted URL`:
-
-1. Переустановите скрипт из свежего `dist/yandex-tracker-ai-copy-button.user.js` после `npm run build`.
-2. Tampermonkey → настройки скрипта → **XHR Security** → уберите `storage.mds.yandex.net` из blacklist, если он туда попал после отказа.
+<img width="4096" height="2024" alt="annotely_image" src="https://github.com/user-attachments/assets/1de29cf3-5670-4769-b4ff-16c928d75adb" />
 
 ## Установка
 
-1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или Violentmonkey / Greasemonkey).
-2. Соберите скрипт: `npm run build`
-3. Откройте `dist/yandex-tracker-ai-copy-button.user.js` и установите в менеджер userscript (или перетащите файл в Tampermonkey).
-
-Для разработки: `npm run dev` — HMR и автоматическое обновление скрипта.
+1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или альтернативы Violentmonkey / Greasemonkey - но в них скрипт не тестировался).
+2. Скачайте готовый юзерскрипт из релизов или соберите его самостоятельно: `npm run build` (итоговый файл будет находиться в папке `dist`)
+3. Перетащите файл `yandex-tracker-ai-copy-button.user.js` в браузер и установите через свой менеджер userscript-ов (например, перетащив файл в окно расширения Tampermonkey).
 
 ## Что копируется
 
@@ -74,3 +63,20 @@ npm run format     # prettier
 - выполняет `npm run typecheck`
 - собирает userscript через `npm run build`
 - публикует `dist/yandex-tracker-ai-copy-button.user.js` как asset в GitHub Release
+
+## Возможные проблемы
+
+### Работа под Safari
+
+Работает стабильно на официальном Tampermonkey (расширение в AppStore платное). Расширение для юзерскриптов Safari Userscripts (quoid/userscripts) не поддерживается.
+
+### Возможные проблемы: доступ к вложениям (XHR)
+
+Проблему на практике не встречал ни разу, но она может возникнуть (в теории)ю
+
+Т.к. крипт запрашивает файлы через `GM_xmlhttpRequest`. Вложения с Трекера обычно редиректят на `storage.mds.yandex.net` — эти домены указаны в `@connect` сборки.
+
+Но если в консоли остаётся `Refused to connect` / `not whitelisted URL`:
+
+1. Переустановите скрипт из свежего `dist/yandex-tracker-ai-copy-button.user.js` после `npm run build`.
+2. Tampermonkey → настройки скрипта → **XHR Security** → уберите `storage.mds.yandex.net` из blacklist, если он туда попал после отказа.
