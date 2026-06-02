@@ -62,3 +62,15 @@ npm run build      # dist/yandex-tracker-ai-copy-button.user.js
 npm run typecheck  # проверка типов
 npm run format     # prettier
 ```
+
+## Релизы через GitHub Actions
+
+В репозитории настроен workflow `.github/workflows/release.yml`.
+
+Что делает pipeline:
+
+- запускается на push тега формата `v*` (например, `v1.2.0`) или вручную через `workflow_dispatch`
+- выполняет `npm ci`
+- выполняет `npm run typecheck`
+- собирает userscript через `npm run build`
+- публикует `dist/yandex-tracker-ai-copy-button.user.js` как asset в GitHub Release
