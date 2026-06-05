@@ -1,4 +1,16 @@
+<div align="center">
+
 # Yandex Tracker - AI Copy Button
+
+[![Install from Greasy Fork](https://img.shields.io/static/v1?label=Install&message=Greasy%20Fork&logoColor=white&labelColor=670000&color=670000&style=for-the-badge)](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button)
+[![Greasy Fork Version](https://img.shields.io/greasyfork/v/581250?style=for-the-badge)](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/mewforest/yandex-tracker-ai-copy-button/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/mewforest/yandex-tracker-ai-copy-button?style=for-the-badge&label=Release)](https://github.com/mewforest/yandex-tracker-ai-copy-button/releases)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tampermonkey](https://img.shields.io/badge/Tampermonkey-00485B?style=for-the-badge&logo=tampermonkey&logoColor=white)](https://www.tampermonkey.net/)
+
+</div>
 
 Расширение в формате userscript-а для [Яндекс Трекера](https://tracker.yandex.ru): добавляет кнопку **«Копировать для ИИ»** рядом со штатными кнопками копирования на странице задачи. Позволяет параллельно копировать вложения комментарии и все необходимые метаданные задачи. Работает сразу из коробки, API-токены не требуются.
 
@@ -6,9 +18,13 @@
 
 ## Установка
 
-1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или альтернативы Violentmonkey / Greasemonkey - но в них скрипт не тестировался).
-2. Скачайте готовый юзерскрипт из релизов или соберите его самостоятельно: `npm run build` (итоговый файл будет находиться в папке `dist`)
-3. Перетащите файл `yandex-tracker-ai-copy-button.user.js` в браузер и установите через свой менеджер userscript-ов (например, перетащив файл в окно расширения Tampermonkey).
+**Рекомендуемый способ:** нажмите кнопку **Install from Greasy Fork** вверху README или откройте [страницу скрипта на Greasy Fork](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button) и установите одним кликом.
+
+Альтернативный вариант:
+
+1. Установите [Tampermonkey](https://www.tampermonkey.net/) (или альтернативы Violentmonkey / Greasemonkey — в них скрипт не тестировался).
+2. Скачайте готовый юзерскрипт из [релизов GitHub](https://github.com/mewforest/yandex-tracker-ai-copy-button/releases) или соберите самостоятельно: `npm run build` (итоговый файл будет в папке `dist`).
+3. Перетащите файл `yandex-tracker-ai-copy-button.user.js` в браузер и установите через менеджер userscript-ов (например, в окно расширения Tampermonkey).
 
 ## Что копируется
 

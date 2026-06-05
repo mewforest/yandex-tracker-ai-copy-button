@@ -11,6 +11,7 @@ export default defineConfig({
         version: '1.0.0',
         description:
           'Добавляет кнопку копирования задачи Яндекс Трекера в Markdown для ИИ',
+        license: 'MIT',
         match: ['https://tracker.yandex.ru/*'],
         connect: [
           'tracker.yandex.ru',
