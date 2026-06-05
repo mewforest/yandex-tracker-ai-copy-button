@@ -2,8 +2,7 @@
 
 # Yandex Tracker - AI Copy Button
 
-[![Install from Greasy Fork](https://img.shields.io/static/v1?label=Install&message=Greasy%20Fork&logoColor=white&labelColor=670000&color=670000&style=for-the-badge)](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button)
-[![Greasy Fork Version](https://img.shields.io/greasyfork/v/581250?style=for-the-badge)](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button)
+[![Install from Greasy Fork](https://img.shields.io/static/v1?label=Install&message=Greasy%20Fork&logoColor=white&labelColor=3D0000&color=670000&style=for-the-badge)](https://greasyfork.org/ru/scripts/581250-yandex-tracker-ai-copy-button)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/mewforest/yandex-tracker-ai-copy-button/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/mewforest/yandex-tracker-ai-copy-button?style=for-the-badge&label=Release)](https://github.com/mewforest/yandex-tracker-ai-copy-button/releases)
